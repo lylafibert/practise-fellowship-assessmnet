@@ -1,68 +1,30 @@
-/**
- * In-memory data store for rapid prototyping
- *
- * PRODUCTION: Replace with PostgreSQL + Prisma
- * Migration path:
- * 1. npm install prisma @prisma/client
- * 2. npx prisma init
- * 3. Define schema in prisma/schema.prisma
- * 4. Replace Map with Prisma client calls
- */
+import { User, Appointment } from "./types";
 
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  age?: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+const users = new Map<string, User>();
+const appointments = new Map<string, Appointment>();
 
-class Database {
-  private users: Map<string, User> = new Map();
-  private userIdCounter = 1;
+export const createUser = (user: User) => {
+  users.set(user.id, user);
+  return user;
+};
 
-  // User operations
-  createUser(data: Omit<User, "id" | "createdAt" | "updatedAt">): User {
-    const id = String(this.userIdCounter++);
-    const now = new Date();
-    const user: User = {
-      id,
-      ...data,
-      createdAt: now,
-      updatedAt: now,
-    };
-    this.users.set(id, user);
-    return user;
-  }
+export const createAppointment = (appointment: Appointment) => {
+  appointments.set(appointment.id, appointment);
+  return appointment;
+};
 
-  getUserById(id: string): User | undefined {
-    return this.users.get(id);
-  }
+export const getAppointmentsByDate = (date: string): Appointment[] => {
+  return Array.from(appointments.values()).filter((app) => app.date === date);
+};
 
-  getAllUsers(): User[] {
-    return Array.from(this.users.values());
-  }
+export const deleteAppointment = (id: string): boolean => {
+  return appointments.delete(id);
+};
 
-  updateUser(id: string, data: Partial<Omit<User, "id" | "createdAt" | "updatedAt">>): User | undefined {
-    const user = this.users.get(id);
-    if (!user) return undefined;
-
-    const updated: User = {
-      ...user,
-      ...data,
-      updatedAt: new Date(),
-    };
-    this.users.set(id, updated);
-    return updated;
-  }
-
-  deleteUser(id: string): boolean {
-    return this.users.delete(id);
-  }
-
-  // Add more domain-specific methods as needed
-}
-
-// Singleton instance
-export const db = new Database();
+export const getAppointmentByBookingRef = (
+  bookingReference: string
+): Appointment | undefined => {
+  return Array.from(appointments.values()).find(
+    (app) => app.bookingReference === bookingReference
+  );
+};

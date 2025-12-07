@@ -536,12 +536,21 @@ This is CRITICAL for government services (WCAG 2.1 AA legally required):
 
 ```typescript
 // app/lib/types.ts
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  phoneNumber: string; // UK number
+}
+
 interface Appointment {
   id: string;
-  citizenEmail: string;
-  serviceType: "passport" | "driving-license" | "tax";
-  appointmentDate: Date;
-  status: "pending" | "confirmed" | "cancelled";
+  userId: string; // Reference to User (normalization)
+  bookingReference: string; // 8-char human-readable
+  serviceType: "passport" | "driving_license" | "tax";
+  date: string; // "2025-12-09" (separate from time for easier querying)
+  startTime: string; // "09:00" (30min duration implied)
+  status: "confirmed" | "cancelled";
   createdAt: Date;
 }
 ```
