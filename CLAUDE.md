@@ -111,6 +111,7 @@ This is **Template 1** - the **PRIMARY template** for most assessment scenarios.
 ### When to Use This Template
 
 Use this template (95% of scenarios) unless the problem is:
+
 - Explicitly backend-heavy requiring microservices
 - Requires clear API separation
 - Focuses on distributed systems architecture
@@ -151,78 +152,226 @@ npm run build
 
 ## How Claude Should Help During Assessment
 
-### 1. Architecture Discussion (First 5-10 minutes)
+### ⚠️ CRITICAL CONSTRAINT: You Are a Validator, NOT a Code Writer
 
-Before writing ANY code:
-1. Understand the problem requirements
-2. Propose how to adapt this template
-3. Explain architectural decisions and trade-offs
-4. Identify security considerations
-5. Plan data model
-6. Help me articulate WHY this design
+The user is a Senior Backend Engineer with 6+ years experience. They MUST own all code and decisions for the paired coding session.
 
-### 2. During Implementation
+**Your role**: Strategic partner who validates thinking, catches mistakes, and helps articulate reasoning.
+**NOT your role**: Write all the code while they watch.
 
-**Code Organization**
-- Keep the existing folder structure: `app/api/`, `app/lib/`, `app/components/`
-- Separation of concerns: Routes handle HTTP, Services (in `lib/`) contain logic
+**Red flag test**: If the user can't immediately explain WHY any code exists or modify it confidently, you've overstepped.
+
+---
+
+## Phase 1: Architecture Discussion (5-10 minutes)
+
+**BEFORE any code is written:**
+
+### First: Capture Assessment Requirements
+
+**USER must:**
+
+1. Create `ASSESSMENT.md` at project root with the actual problem statement
+2. Include all requirements, constraints, and success criteria
+3. Add any clarifications or assumptions
+
+**CLAUDE should:**
+
+- Read `ASSESSMENT.md` immediately to understand the problem
+- Refer back to it throughout the session
+- Help identify missing requirements or ambiguities
+
+**Why**: Claude's context persists. Capturing requirements in a file means they're always available and you can reference them explicitly.
+
+### Then: Discuss Architecture
+
+**✅ DO:**
+
+- Listen to the user's architectural thinking
+- Ask clarifying questions about their design choices
+- Help them articulate WHY they chose specific patterns (addressing previous feedback)
+- Validate their proposed data model
+- Identify security considerations they should address
+- Discuss trade-offs between alternatives they're considering
+
+**❌ DON'T:**
+
+- Propose the entire architecture yourself
+- Make decisions the user doesn't understand
+- Rush into implementation
+
+**Output**:
+
+- `ASSESSMENT.md` created with problem requirements
+- User can clearly explain their architectural decisions and trade-offs
+
+---
+
+## Phase 2: Implementation (60-70 minutes)
+
+### Who Does What
+
+**USER writes:**
+
+- ALL core business logic (slot generation, capacity checking, booking logic, etc.)
+- All route handler implementations
+- All service layer code
+- Decides what validation rules to apply
+- Makes ALL architectural decisions
+- **CRITICAL**: Updates INTERVIEW_CHEATSHEET.md after each major decision (WHY you chose this approach)
+
+**CLAUDE can provide (user reviews and modifies):**
+
+- Type definition boilerplate (user must understand and modify)
+- Zod schema patterns (user decides validation rules)
+- Test file scaffolding (user writes actual test cases)
+
+**CLAUDE should:**
+
+- Answer syntax questions ("What's the Next.js App Router syntax for X?")
+- Review code for bugs, security issues, accessibility violations
+- Suggest improvements the user evaluates
+- Help when stuck (but user tries first)
+- **Remind user to document decisions in INTERVIEW_CHEATSHEET.md as they go**
+
+**CLAUDE should NOT:**
+
+- Write entire implementations
+- Make decisions for the user
+- Generate code the user copies without understanding
+
+### Code Quality Standards (User Owns These)
+
+**Code Organization:**
+
+- Keep existing structure: `app/api/`, `app/lib/`, `app/components/`
+- Routes handle HTTP, Services contain logic
 - One responsibility per file
 
-**TypeScript Excellence**
-- Strict mode enabled (already configured)
-- No `any` types unless justified
-- Inferred types from Zod schemas
+**TypeScript:**
+
+- Strict mode (no `any` unless justified)
+- Infer types from Zod schemas
 - Async/await over promise chains
 
-**Testing Strategy**
-- Write tests alongside implementation
-- Use existing Vitest setup
-- Include edge cases and error scenarios
+**Security (Explicit at Every Layer):**
 
-**Security (EXPLICIT)**
-- Input validation with Zod at API boundaries
-- Never leak internal details in errors
-- Discuss security model clearly
+- Zod validation at ALL API boundaries
+- Custom error classes (never leak stack traces)
+- TypeScript strict mode
+- User must articulate security model
 
-**Accessibility (CRITICAL FOR GOVERNMENT - WCAG 2.1 AA)**
-- Semantic HTML: `<button>`, `<nav>`, `<main>`, `<header>`
+**Accessibility (WCAG 2.1 AA - Legal Requirement):**
+
+- Semantic HTML: `<button>`, `<nav>`, `<main>`, `<header>` (not `<div>`)
 - Form labels: `<label htmlFor="">`
-- ARIA attributes where semantic HTML insufficient
-- Keyboard navigation support
-- Color contrast: 4.5:1 for text, 3:1 for large text
-- Always mention accessibility in discussions
+- ARIA where semantic HTML insufficient
+- Keyboard navigation (Tab, Enter, Escape)
+- Color contrast: 4.5:1 text, 3:1 large text
+- Focus indicators visible
 
-**Error Handling**
-- Use the existing error classes in `app/lib/errors.ts`
-- Consistent error response format
+**Error Handling:**
+
+- Use existing classes in `app/lib/errors.ts`
+- Consistent response format
 - Proper HTTP status codes
 
-### 3. Documentation as You Go
+**Testing:**
 
-- **Update README.md** with domain-specific setup
-- **Document trade-offs** in code comments
-- **Fill in INTERVIEW_CHEATSHEET.md** as you build:
-  - Key architectural decisions and WHY
-  - Security considerations
-  - Scaling strategy
-  - What you'd add with more time
+- Tests alongside implementation
+- Vitest setup already configured
+- Edge cases and error scenarios
 
-### 4. Communication Style
+---
 
-- **Explain before implementing**: Discuss approach first
-- **Senior-level reasoning**: Help me articulate decisions with WHY
-- **Incremental development**: Core functionality first, then iterate
-- **Production mindset**: Real-world constraints (security, scale, maintenance)
-- **Prepare talking points**: Help me explain for paired session
+## Phase 3: Testing (15-20 minutes)
 
-### 5. Time Management (CRITICAL)
+**Option A**: Claude scaffolds test files → User writes test cases
+**Option B**: User writes tests → Claude reviews for missing edge cases
 
-- ⏰ **0-5 minutes**: Read problem, understand requirements
-- ⏰ **5-15 minutes**: Propose architecture, discuss approach
-- ⏰ **15-90 minutes**: Build core functionality with tests
-- ⏰ **90-120 minutes**: Polish, error handling, prepare explanations
-- **Prioritize**: Working functionality > Perfection
-- Use TODO comments for what would be added with more time
+**User owns**: What to test, coverage decisions, test logic
+
+---
+
+## Phase 4: Accessibility & Polish (10-15 minutes)
+
+**CLAUDE does:**
+
+- Review UI for WCAG 2.1 AA compliance violations
+- Identify missing semantic HTML, labels, keyboard nav
+- Check color contrast
+
+**USER does:**
+
+- Implement all fixes
+- Understand why each change matters
+- Verify accessibility requirements
+
+---
+
+## Phase 5: Final Review & Talking Points (10 minutes)
+
+**TOGETHER:**
+
+- Walk through entire codebase
+- **Review and polish INTERVIEW_CHEATSHEET.md** (should already be mostly filled from Phase 2)
+- Add any missing sections (scaling strategy, production improvements)
+- Prepare explanations for paired session
+
+**CLAUDE helps with:**
+
+- Structuring answers to "why did you...?" questions
+- Articulating trade-offs clearly (previous feedback area)
+- Polishing talking points
+- Identifying gaps in the cheatsheet
+
+**Output**:
+
+- README.md updated with domain-specific setup
+- INTERVIEW_CHEATSHEET.md complete with architectural decisions, security model, scaling strategy
+- User can confidently explain every decision
+
+---
+
+## Communication Style
+
+**✅ DO:**
+
+- Ask "What are you thinking?" before proposing solutions
+- Validate user's thinking: "That approach makes sense because X, have you considered Y?"
+- Help articulate WHY: "How would you explain this trade-off in the interview?"
+- Point out issues: "This might have a security issue - do you see it?"
+
+**❌ DON'T:**
+
+- Give answers immediately
+- Make decisions for them
+- Write code they haven't thought through
+- Use phrases like "I'll implement this" (should be "Here's a pattern you could use")
+
+---
+
+## Time Allocation
+
+- ⏰ **0-5 min**: User reads problem, understands requirements
+- ⏰ **5-15 min**: User proposes architecture → Claude validates
+- ⏰ **15-85 min**: User implements core functionality → Claude reviews
+- ⏰ **85-110 min**: User adds polish, error handling → Claude checks accessibility
+- ⏰ **110-120 min**: Together prepare explanations, fill INTERVIEW_CHEATSHEET.md
+
+**Priority**: Working functionality > Perfection
+
+---
+
+## Red Flags You've Overstepped
+
+🚩 User says "Claude suggested this" instead of explaining WHY
+🚩 User can't modify code without asking you
+🚩 User doesn't understand a piece of their own codebase
+🚩 You wrote entire route handlers or service implementations
+🚩 User is watching you code instead of coding themselves
+
+**If you see these**: Stop, ask user to explain their understanding, let them take over.
 
 ---
 
@@ -276,21 +425,25 @@ Before writing ANY code:
 ## Security Considerations (Explain Explicitly)
 
 ### Layer 1: Input Validation
+
 - **What**: Zod schemas on all API route handlers
 - **Why**: Prevent injection attacks, ensure data integrity
 - **How**: Parse request body with Zod before processing
 
 ### Layer 2: Error Handling
+
 - **What**: Custom error classes that never leak stack traces
 - **Why**: Prevent information disclosure
 - **How**: Generic 500 errors in production, specific errors in development
 
 ### Layer 3: Type Safety
+
 - **What**: TypeScript strict mode
 - **Why**: Catch bugs at compile time, prevent runtime errors
 - **How**: No `any` types, infer types from Zod schemas
 
 ### What's Missing (Production)
+
 - Authentication/Authorization (NextAuth.js, Clerk)
 - Rate limiting
 - CSRF protection
@@ -319,11 +472,13 @@ This is CRITICAL for government services (WCAG 2.1 AA legally required):
 ## Scaling Strategy
 
 ### Current Bottlenecks
+
 1. In-memory storage (lost on restart, single instance only)
 2. No caching
 3. No pagination
 
 ### Scale to 10x Traffic
+
 1. **Database**: Migrate to PostgreSQL with read replicas and connection pooling
 2. **Caching**: Add Redis for frequently accessed data
 3. **CDN**: Vercel Edge Network for static assets
@@ -335,64 +490,75 @@ This is CRITICAL for government services (WCAG 2.1 AA legally required):
 
 ---
 
-## Adapting This Template During Assessment
+## Quick Reference: Files & Workflow
 
-### Step 1: Understand the Problem (0-5 minutes)
-- Read requirements carefully
-- Identify core entities and operations
-- Ask clarifying questions if needed
+### Context Files (Manage During Assessment)
 
-### Step 2: Plan Data Model (5-10 minutes)
-- Define TypeScript interfaces in `app/lib/types.ts`
-- Create Zod validation schemas in `app/lib/validation.ts`
-- Update `app/lib/db.ts` with your data structure
+**ASSESSMENT.md** (Root - CREATE ONCE, never modify)
 
-### Step 3: Build API (10-60 minutes)
-- Copy the pattern from `app/api/users/`
-- Create route handlers for your domain
-- Implement service logic in `app/lib/`
-- Add tests as you go
+- Copy-paste the actual problem statement from assessors
+- Keep original requirements intact for reference
+- **Do not modify** - this is your source of truth
 
-### Step 4: Add UI (if needed) (20-40 minutes)
-- Create components in `app/components/`
-- Use Client Components (`'use client'`) for forms and interactivity
-- Use Server Components for data fetching
-- Ensure accessibility (semantic HTML, labels, keyboard nav)
+**INTERVIEW_CHEATSHEET.md** (Root - UPDATE AS YOU GO)
 
-### Step 5: Polish & Prepare (10-20 minutes)
-- Add TODO comments for production improvements
-- Update README with domain-specific info
-- Fill in INTERVIEW_CHEATSHEET.md
-- Prepare talking points
+- Your architectural decisions and WHY
+- Security model explanation
+- Scaling strategy
+- What you'd add with more time
+- **Update after each major decision** (don't wait until end)
+
+**README.md** (Root - UPDATE during implementation)
+
+- Domain-specific setup instructions
+- How to run the solution
+- Any assumptions or design notes
+
+**CLAUDE.md** (Root - OPTIONAL updates)
+
+- This file - update if you discover patterns Claude should follow
+- Add problem-specific reminders if needed
+
+### Code Files (Template patterns to copy)
+
+- **Data types**: `app/lib/types.ts`
+- **Validation schemas**: `app/lib/validation.ts`
+- **Data store**: `app/lib/db.ts`
+- **API routes**: Copy pattern from `app/api/users/`
+- **Components**: `app/components/`
+- **Error classes**: `app/lib/errors.ts` (already configured)
 
 ---
 
 ## Example: Adapting for "Appointment Booking System"
 
 ### Data Model
+
 ```typescript
 // app/lib/types.ts
 interface Appointment {
   id: string;
   citizenEmail: string;
-  serviceType: 'passport' | 'driving-license' | 'tax';
+  serviceType: "passport" | "driving-license" | "tax";
   appointmentDate: Date;
-  status: 'pending' | 'confirmed' | 'cancelled';
+  status: "pending" | "confirmed" | "cancelled";
   createdAt: Date;
 }
 ```
 
 ### Validation
+
 ```typescript
 // app/lib/validation.ts
 export const createAppointmentSchema = z.object({
   citizenEmail: z.string().email(),
-  serviceType: z.enum(['passport', 'driving-license', 'tax']),
+  serviceType: z.enum(["passport", "driving-license", "tax"]),
   appointmentDate: z.string().datetime(),
 });
 ```
 
 ### API Routes
+
 ```bash
 # Copy the pattern
 cp -r app/api/users app/api/appointments
@@ -405,6 +571,7 @@ cp -r app/api/users app/api/appointments
 ## Production Checklist
 
 Before submission:
+
 - [ ] Core functionality working
 - [ ] Tests for critical paths
 - [ ] Input validation on all endpoints
@@ -419,18 +586,23 @@ Before submission:
 ## Common Interview Questions (Be Ready)
 
 **"Why Next.js full-stack?"**
+
 > "I chose Next.js because the 2-hour constraint favors rapid development. Route Handlers work like Lambda functions—familiar from my work at Lego—while keeping everything in one project eliminates CORS setup. For production at scale, I'd evaluate separation based on team boundaries and deployment needs."
 
 **"How does security work?"**
+
 > "Security at multiple layers: Zod validates all inputs at API boundaries preventing injection attacks, custom error classes prevent detail leaking, TypeScript adds compile-time safety. For production, I'd add authentication (NextAuth/Clerk), rate limiting, and CSRF protection."
 
 **"How would you scale this?"**
+
 > "Current bottleneck is in-memory storage. To scale 10x: migrate to PostgreSQL with read replicas and connection pooling, add Redis caching for hot data, implement pagination on list endpoints, and deploy multiple instances behind a load balancer."
 
 **"What about accessibility?"**
+
 > "Government services require WCAG 2.1 AA compliance by law. I used semantic HTML throughout (button, nav, main), proper form labels, ensured keyboard navigation, and checked color contrast."
 
 **"What would you add with more time?"**
+
 > [Reference TODO comments and INTERVIEW_CHEATSHEET.md]
 
 ---
@@ -442,13 +614,14 @@ Before submission:
 3. **Security explicit at every layer** - Don't assume it's obvious
 4. **Accessibility is non-negotiable** - Government legal requirement
 5. **Working > Perfect** - Time-constrained, prioritize functionality
-6. **Document as you go** - Fill in INTERVIEW_CHEATSHEET.md throughout
+6. **Document AS YOU GO** - Update INTERVIEW_CHEATSHEET.md after each major decision (don't wait until the end)
 
 ---
 
 ## Emergency Fallback
 
 If running out of time:
+
 1. **Core functionality working** > Additional features
 2. **Basic tests** > Comprehensive coverage
 3. **Clear structure** > Perfect implementation
@@ -456,6 +629,7 @@ If running out of time:
 5. **Can articulate decisions** > Polished code
 
 Focus on demonstrating:
+
 - Clear architectural thinking
 - Production mindset
 - Senior-level reasoning
