@@ -1,0 +1,7 @@
+{
+  "vitest.enable": true,
+  "vitest.commandLine": "npm run test",
+  "vitest.include": ["**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
+  "vitest.exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.next/**"],
+  "testing.automaticallyOpenPeekView": "failureInVisibleDocument"
+}
